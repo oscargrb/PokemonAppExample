@@ -1,5 +1,5 @@
 {
-  "name": "PokeApp-Example",
+  "name": "PokemonAppExample",
   "version": "1.0.0",
   "main": "expo-router/entry.js",
   "scripts": {
