@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   ActivityIndicator,
@@ -7,6 +7,9 @@ import {
   View,
   Text,
   Pressable,
+  Modal,
+  Animated,
+  StyleSheet,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatedCard } from "./Card";
@@ -18,6 +21,7 @@ import {
 } from "../Components/Icons";
 
 import Screen from "./Screen";
+/* import Animated, { Easing } from "react-native-reanimated"; */
 
 export default function Main() {
   const insets = useSafeAreaInsets();
@@ -27,6 +31,29 @@ export default function Main() {
   const [limit] = useState(60);
   const [filter, setFilter] = useState("");
   const [filterActive, setFilterActive] = useState(false);
+
+  // estado para abrir y cerrar modal
+  const [visible, setVisible] = useState(false);
+
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateX = useRef(new Animated.Value(-500)).current;
+
+  const showModal = () => {
+    setVisible(true);
+    Animated.timing(translateX, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const hideModal = () => {
+    Animated.timing(translateX, {
+      toValue: -500,
+      duration: 100,
+      useNativeDriver: true,
+    }).start(() => setVisible(false));
+  };
 
   useEffect(() => {
     getPokemons();
@@ -101,6 +128,9 @@ export default function Main() {
             <SearchIcons color="white" />
           </Pressable>
         )}
+        <Pressable onPress={showModal}>
+          <RightIcon color="white" />
+        </Pressable>
       </View>
       {pokemons.length === 0 ? (
         <ActivityIndicator size={"large"} />
@@ -131,6 +161,42 @@ export default function Main() {
           <></>
         )}
       </View>
+      {visible ? (
+        <Animated.View style={[styles.modal, { transform: [{ translateX }] }]}>
+          {/* <Modal>
+            
+          </Modal> */}
+          <View style={styles.modalContent}>
+            <Text>Hola mundo</Text>
+            <Pressable onPress={hideModal}>
+              <CloseIcon color="black" />
+            </Pressable>
+          </View>
+        </Animated.View>
+      ) : (
+        <></>
+      )}
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    height: 400,
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+  },
+});
